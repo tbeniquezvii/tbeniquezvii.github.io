@@ -4,6 +4,7 @@ import LoginForm from "@/components/login-form";
 import SignOutButton from "@/components/sign-out-button";
 import TaskForm from "@/components/task-form";
 import WeeklyEntryForm from "@/components/weekly-entry-form";
+import ScheduleForm from "@/components/schedule-form";
 import StatusSelect from "@/components/status-select";
 
 function formatDay(value) {
@@ -22,6 +23,11 @@ function startOfWeek(value) {
   const distance = day === 0 ? -6 : 1 - day;
   date.setUTCDate(date.getUTCDate() + distance);
   return date.toISOString().slice(0, 10);
+}
+
+function formatHours(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return Number(value).toFixed(2).replace(/\.00$/, "");
 }
 
 export default async function Home({ searchParams }) {
@@ -50,13 +56,22 @@ export default async function Home({ searchParams }) {
     );
   }
 
-  const [{ data: tasks, error: tasksError }, { data: entries, error: entriesError }] = await Promise.all([
+  const [
+    { data: tasks, error: tasksError },
+    { data: entries, error: entriesError },
+    { data: scheduleItems, error: scheduleError },
+  ] = await Promise.all([
     supabase.from("tasks").select("id,title,created_at").order("created_at", { ascending: false }),
     supabase
       .from("weekly_entries")
       .select("id,day,hours_worked,task_description,status,created_at")
       .order("day", { ascending: false })
       .order("created_at", { ascending: false }),
+    supabase
+      .from("schedule")
+      .select("id,date,title,category,planned_hours,status,notes,created_at")
+      .order("date", { ascending: true })
+      .order("created_at", { ascending: true }),
   ]);
 
   const groupedEntries = new Map();
@@ -72,7 +87,7 @@ export default async function Home({ searchParams }) {
         <div>
           <p className="eyebrow">nyaLABS · Private</p>
           <h1>Universe Supreme</h1>
-          <p className="subtitle">Step 1 tasks and Step 2 S&amp;T weekly work records.</p>
+          <p className="subtitle">Tasks, S&amp;T work records, and planned schedule items.</p>
         </div>
         <SignOutButton />
       </header>
@@ -96,6 +111,38 @@ export default async function Home({ searchParams }) {
       <section className="panel section-panel">
         <div className="panel-header split-header">
           <div>
+            <p className="section-kicker">Schedule</p>
+            <h2>Planned and future items</h2>
+          </div>
+          <span className="count-pill">{scheduleItems?.length || 0} items</span>
+        </div>
+        <ScheduleForm />
+        {scheduleError ? <p className="error">Schedule items could not be loaded.</p> : null}
+        <div className="week-list">
+          <section className="week-block">
+            <div className="entries-table">
+              <div className="entry-row schedule-row entry-head">
+                <span>Date</span><span>Category</span><span>Title</span><span>Hours</span><span>Status</span><span>Notes</span>
+              </div>
+              {(scheduleItems || []).map((item) => (
+                <div className="entry-row schedule-row" key={item.id}>
+                  <span>{formatDay(item.date)}</span>
+                  <span>{item.category}</span>
+                  <span>{item.title}</span>
+                  <span>{formatHours(item.planned_hours)}</span>
+                  <span>{item.status}</span>
+                  <span>{item.notes || "—"}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+          {!scheduleItems?.length && !scheduleError ? <p className="empty">No schedule items saved yet.</p> : null}
+        </div>
+      </section>
+
+      <section className="panel section-panel">
+        <div className="panel-header split-header">
+          <div>
             <p className="section-kicker">Step 2 · S&amp;T HVAC &amp; Refrigeration</p>
             <h2>Weekly work hours and tasks</h2>
           </div>
@@ -110,7 +157,7 @@ export default async function Home({ searchParams }) {
               <section className="week-block" key={week}>
                 <div className="week-heading">
                   <h3>Week of {formatDay(week)}</h3>
-                  <strong>{total.toFixed(2).replace(/\.00$/, "")} hours</strong>
+                  <strong>{formatHours(total)} hours</strong>
                 </div>
                 <div className="entries-table">
                   <div className="entry-row entry-head">
@@ -119,7 +166,7 @@ export default async function Home({ searchParams }) {
                   {weekEntries.map((entry) => (
                     <div className="entry-row" key={entry.id}>
                       <span>{formatDay(entry.day)}</span>
-                      <span>{Number(entry.hours_worked).toFixed(2).replace(/\.00$/, "")}</span>
+                      <span>{formatHours(entry.hours_worked)}</span>
                       <span>{entry.task_description}</span>
                       <StatusSelect id={entry.id} initialStatus={entry.status} />
                     </div>
