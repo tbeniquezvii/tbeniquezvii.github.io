@@ -75,6 +75,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--lavender); box-s
 .week-heading strong { color: var(--orange-soft); }
 .entries-table { display: grid; }
 .entry-row { display: grid; grid-template-columns: minmax(130px, .8fr) 90px minmax(240px, 2fr) minmax(130px, .8fr); gap: 12px; align-items: center; padding: 13px 18px; border-top: 1px solid var(--line); }
+.schedule-row { grid-template-columns: minmax(135px, .9fr) minmax(105px, .7fr) minmax(190px, 1.4fr) 75px 95px minmax(180px, 1.5fr); }
 .entry-head { color: var(--muted); font-size: .75rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
 .status-select { margin: 0; padding: 9px 10px; border-radius: 10px; }
 
@@ -84,9 +85,15 @@ input:focus, textarea:focus, select:focus { border-color: var(--lavender); box-s
   .app-header, .split-header, .week-heading { flex-direction: column; }
   .entry-form { grid-template-columns: 1fr; }
   .entry-form .wide-field, .entry-form > button { grid-column: auto; }
-  .entry-row { grid-template-columns: 1fr; gap: 5px; }
+  .entry-row, .schedule-row { grid-template-columns: 1fr; gap: 5px; }
   .entry-head { display: none; }
   .entry-row span:nth-child(1)::before { content: "Day: "; color: var(--muted); font-weight: 700; }
   .entry-row span:nth-child(2)::before { content: "Hours: "; color: var(--muted); font-weight: 700; }
+  .schedule-row span:nth-child(1)::before { content: "Date: "; }
+  .schedule-row span:nth-child(2)::before { content: "Category: "; }
+  .schedule-row span:nth-child(3)::before { content: "Title: "; color: var(--muted); font-weight: 700; }
+  .schedule-row span:nth-child(4)::before { content: "Hours: "; color: var(--muted); font-weight: 700; }
+  .schedule-row span:nth-child(5)::before { content: "Status: "; color: var(--muted); font-weight: 700; }
+  .schedule-row span:nth-child(6)::before { content: "Notes: "; color: var(--muted); font-weight: 700; }
   .inline-fields { grid-template-columns: 1fr; }
 }
