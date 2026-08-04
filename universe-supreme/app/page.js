@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import LoginForm from "@/components/login-form";
 import SignOutButton from "@/components/sign-out-button";
 import TaskForm from "@/components/task-form";
+import TaskItem from "@/components/task-item";
 import WeeklyEntryForm from "@/components/weekly-entry-form";
 import ScheduleForm from "@/components/schedule-form";
 import StatusSelect from "@/components/status-select";
@@ -103,7 +104,7 @@ export default async function Home({ searchParams }) {
         <TaskForm />
         {tasksError ? <p className="error">Tasks could not be loaded.</p> : null}
         <div className="simple-list">
-          {(tasks || []).map((task) => <div className="simple-row" key={task.id}>{task.title}</div>)}
+          {(tasks || []).map((task) => <TaskItem task={task} key={task.id} />)}
           {!tasks?.length && !tasksError ? <p className="empty">No tasks saved yet.</p> : null}
         </div>
       </section>
